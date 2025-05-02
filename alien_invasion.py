@@ -28,20 +28,47 @@ class AlienInvasion:
         '''Inicia o loop princiapl do jogo.'''
         
         while True:
-            # Observa eventos do teclado e do mouse.
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-            
-            # Redesenha a tela durante cada passagem pelo loop.
-            self.screen.fill(self.settings.background_color)
-            self.ship.blitme()
-                    
-            # Deixa a tela mais recente visível.
-            pygame.display.flip()
+            self._check_events()
+            self.ship.update()
+            self._update_screen()
             self.clock.tick(60)
-            
+    
+    def _check_events(self):
+        ''' Responde a eventos de pressionamentos de teclas e mouse.'''
         
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+                
+            elif event.type == pygame.KEYDOWN: # Quando uma tecla é pressionada
+                if event.key == pygame.K_RIGHT:  
+                    # Move a espaçonave para a direita
+                    self.ship.moving_right = True
+                
+                elif event.type == pygame.KEYDOWN: # Quando uma tecla é pressionada
+                    if event.key == pygame.K_LEFT:
+                        self.ship.moving_left = True
+            
+            elif event.type == pygame.KEYUP:  # Quando uma tecla é solta
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
+                    
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = False
+
+                    
+                
+    def _update_screen(self):
+        '''Atualiza as imagens na tela e alterna para a nova tela.'''
+        
+        # Redesenha a tela durante cada passagem pelo loop.
+        self.screen.fill(self.settings.background_color)
+        self.ship.blitme()
+                
+        # Deixa a tela mais recente visível.
+        pygame.display.flip()
+    
+
 if __name__ == '__main__':
     # Cria uma instância do jogo e executa o jogo.
     ai = AlienInvasion()
