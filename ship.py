@@ -7,6 +7,7 @@ class Ship:
     def __init__(self, ai_game):
         '''Inicializa a espaçonave e define sua posição inicial.'''
         self.screen = ai_game.screen
+        self.settings = ai_game.settings
         self.screen_rect = ai_game.screen.get_rect()
 
         # Tenta carregar a imagem da nave.
@@ -22,17 +23,26 @@ class Ship:
         # Posiciona cada espaçonave nova na parte inferior central da tela.
         self.rect.midbottom = self.screen_rect.midbottom
         
+        # Armazena um float para a posição horizontal exata da espaçonave.
+        self.x = float(self.rect.x)
+        
         # Flag de movimento; começa com uma espaçonave que não está se movendo.
         self.moving_right = False
         self.moving_left = False
     
+        # Coloca cada espaçonave nova na parte inferior central da tela.
+        self.rect.midbottom = self.screen_rect.midbottom
+               
     def update(self):
         ''' Atualiza a posição da espaçonave com base na flag de movimento.'''
         if self.moving_right:
-            self.rect.x += 1
+            self.x += self.settings.ship_speed
         
         if self.moving_left:
-            self.rect.x -= 1
+            self.x -= self.settings.ship_speed
+            
+        # Atualiza o objeto rect do self.x
+        self.rect.x = self.x
 
     def blitme(self):
         '''Desenha a espaçonave em sua localização atual.'''

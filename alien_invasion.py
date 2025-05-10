@@ -42,22 +42,18 @@ class AlienInvasion:
                 
             elif event.type == pygame.KEYDOWN: # Quando uma tecla é pressionada
                 if event.key == pygame.K_RIGHT:  
-                    # Move a espaçonave para a direita
                     self.ship.moving_right = True
                 
-                elif event.type == pygame.KEYDOWN: # Quando uma tecla é pressionada
-                    if event.key == pygame.K_LEFT:
-                        self.ship.moving_left = True
-            
+                elif event.key == pygame.K_LEFT:
+                   self.ship.moving_left = True 
+                
             elif event.type == pygame.KEYUP:  # Quando uma tecla é solta
                 if event.key == pygame.K_RIGHT:
                     self.ship.moving_right = False
                     
                 elif event.key == pygame.K_LEFT:
                     self.ship.moving_left = False
-
-                    
-                
+               
     def _update_screen(self):
         '''Atualiza as imagens na tela e alterna para a nova tela.'''
         
