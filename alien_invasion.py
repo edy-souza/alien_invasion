@@ -1,7 +1,9 @@
 import sys
+from time import sleep
 import pygame
 
 from settings import Settings
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -9,8 +11,7 @@ from alien import Alien
 class AlienInvasion:
     '''Classe geral para gerenciar recursos e comportamentos do jogo.'''
     
-    def __init__(self):
-        
+    def __init__(self):        
         '''Inicializa o jogo e cria recursos do jogo.'''
         
         pygame.init()
@@ -29,6 +30,14 @@ class AlienInvasion:
         
         # Define o background da tela.
         self.background_color = self.settings.background_color
+        
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+        pygame.display.set_caption('Alien Invasion')
+        
+        # Cria uma instância para armazenar estatísticas do jogo
+        self.stats = GameStats(self)
+        
+        self.ship = Ship(self)
         
     def run_game(self):
         
@@ -108,7 +117,7 @@ class AlienInvasion:
         
         # Detecta colisões entre alienígenas e espaçonaves
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
-            print('Ship hit!!!')
+            self._ship_hit()
         
     def _fire_bullet(self):
         ''' Cria um novo projétil e o adiciona ao grupo de projéteis'''
@@ -195,6 +204,22 @@ class AlienInvasion:
         for alien in self.aliens.sprites():
             alien.rect.y += self.settings.fleet_drop_speed
         self.settings.fleet_direction *= -1
+        
+    def _ship_hit(self):
+        ''' Responde à espaçonave sendo abatida por um alienígena '''
+        # Decrementa ships_left
+        self.stats.ships_left -= 1
+        
+        # Descarta quaisquer projéteis e alienígenas restantes
+        self.bullets.empty()
+        self.aliens.empty()
+        
+        # Cria uma frota nova e centraliza a espaçonave
+        self._create_fleet()
+        self.ship.center_ship()
+        
+        # Pausa
+        sleep(0.5)
         
 if __name__ == '__main__':
     # Cria uma instância do jogo e executa o jogo.
