@@ -106,6 +106,10 @@ class AlienInvasion:
         self._check_fleet_edges()
         self.aliens.update()
         
+        # Detecta colisões entre alienígenas e espaçonaves
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            print('Ship hit!!!')
+        
     def _fire_bullet(self):
         ''' Cria um novo projétil e o adiciona ao grupo de projéteis'''
         if len(self.bullets) < self.settings.bullets_allowed:
@@ -116,21 +120,33 @@ class AlienInvasion:
         ''' Atualiza a posição dos projéteis e descarta os projéteis antigos'''
         # Atualiza a posição dos projéteis
         self.bullets.update()
+         
+        # Verifica se algum projétil atingiu um alienígena 
+        # Se sim, descarta o projétil e o alienígena
+        colisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
         
         if not self.aliens:
             # Destrói os projéteis existentes e cria uma frota nova
             self.bullets.empty()
-            self._create_fleet()       
-        
-        # Verifica se algum projétil atingiu um alienígena 
-        colisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
-        
-        # Descarta os projeties que desapareceram
+            self._create_fleet()
+            
+        # Descata os projéteis que desapareceram
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
-                
-    
+        
+        self._check_bullet_alien_colisions()
+        
+    def _check_bullet_alien_colisions(self):
+        ''' Responde à colisões alienígenas '''
+        # Remove todos os projéteis e os alienígenas que tem colidido
+        colisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        
+        if not self.aliens:
+            # Destrói os projéteis existentes e cria uma frota nova
+            self.bullets.empty()
+            self._create_fleet()
+        
                 
     def _create_fleet(self):
         ''' Cria uma frota de alienígenas'''
