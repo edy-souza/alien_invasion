@@ -39,15 +39,20 @@ class AlienInvasion:
         
         self.ship = Ship(self)
         
-    def run_game(self):
+        # Inicializa invasão alienígena em um estado ativo
+        self.game_active = True
         
+    def run_game(self):  
         '''Inicia o loop princiapl do jogo.'''
         
         while True:
             self._check_events()
-            self.ship.update()
-            self._update_bullets()
-            self._update_aliens()
+               
+            if self.game_active:
+                self.ship.update()
+                self._update_bullets()
+                self._update_aliens()
+                
             self._update_screen()
             self.clock.tick(60)
     
@@ -118,6 +123,9 @@ class AlienInvasion:
         # Detecta colisões entre alienígenas e espaçonaves
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
             self._ship_hit()
+            
+        # Procura por alienígenas se chocando com a parte inferior da tela 
+        self._check_aliens_bottom()
         
     def _fire_bullet(self):
         ''' Cria um novo projétil e o adiciona ao grupo de projéteis'''
@@ -207,19 +215,33 @@ class AlienInvasion:
         
     def _ship_hit(self):
         ''' Responde à espaçonave sendo abatida por um alienígena '''
-        # Decrementa ships_left
-        self.stats.ships_left -= 1
+        if self.stats.ships_left > 0:
+            
+            # Decrementa ships_left
+            self.stats.ships_left -= 1
+                    
+            # Descarta quaisquer projéteis e alienígenas restantes
+            self.bullets.empty()
+            self.aliens.empty()
+            
+            # Cria uma frota nova e centraliza a espaçonave
+            self._create_fleet()
+            self.ship.center_ship()
+            
+            # Pausa
+            sleep(0.5)
+        else:
+            self.game_active = False
+    
+    def _check_aliens_bottom(self):
+        ''' Verifica se algum alienígena chegou à parte inferior da tela'''
         
-        # Descarta quaisquer projéteis e alienígenas restantes
-        self.bullets.empty()
-        self.aliens.empty()
-        
-        # Cria uma frota nova e centraliza a espaçonave
-        self._create_fleet()
-        self.ship.center_ship()
-        
-        # Pausa
-        sleep(0.5)
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= self.settings.screen_height:
+                # Trata isso como se a espaçonave tivesse sido abatida
+                self._ship_hit()
+                break
+    
         
 if __name__ == '__main__':
     # Cria uma instância do jogo e executa o jogo.
