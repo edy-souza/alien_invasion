@@ -67,12 +67,37 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
                 
             elif event.type == pygame.KEYDOWN: # Quando uma tecla é pressionada
                 self._check_keydown_events(event)
             
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+                
+    def _check_play_button(self, mouse_pos):
+        ''' Inicia um jogo quando o jogador clica em Play'''
+        
+        button_cliked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_cliked and not self.game_active:
+            # Redefine as estatísticas do jogo
+            self.settings.initialize_dynamic_settings()
+            self.stats.reset_stats()
+            self.game_active =  True
+            
+            # Oculta o cursor do mouse
+            pygame.mouse.set_visible(False)
+            
+        # Descarta quaisquer projéteis e alienígenas restantes
+        self.bullets.empty()
+        self.aliens.empty()
+        
+        # Cria uma frota nova e centraliza a espaçonave
+        self._create_fleet()
+        self.ship.center_ship()
     
     def _check_keydown_events(self, event):
         ''' Respode a teclas pressionadas'''
@@ -172,8 +197,13 @@ class AlienInvasion:
             # Destrói os projéteis existentes e cria uma frota nova
             self.bullets.empty()
             self._create_fleet()
-        
-                
+            
+        if not self.aliens:
+            # Destrói os projéteis existentes e cria uma frota
+            self.bullets.empty()
+            self._create_fleet()
+            self.settings.increase_speed()
+              
     def _create_fleet(self):
         ''' Cria uma frota de alienígenas'''
         
@@ -241,6 +271,7 @@ class AlienInvasion:
             sleep(0.5)
         else:
             self.game_active = False
+            pygame.mouse.set_visible(True)
     
     def _check_aliens_bottom(self):
         ''' Verifica se algum alienígena chegou à parte inferior da tela'''
