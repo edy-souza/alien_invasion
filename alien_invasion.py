@@ -24,6 +24,10 @@ class AlienInvasion:
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption('Alien Invasion')
         
+        # Cria uma instância para armazenar estatísticas do jogo
+        self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
+        
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -33,13 +37,7 @@ class AlienInvasion:
         # Define o background da tela.
         self.background_color = self.settings.background_color
         
-        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
-        pygame.display.set_caption('Alien Invasion')
-              
-        # Cria uma instância para armazenar estatísticas do jogo
-        self.stats = GameStats(self)
-        self.sb = Scoreboard(self)
-        
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))       
         self.ship = Ship(self)
         
         # Inicializa invasão alienígena em um estado ativo
@@ -83,11 +81,13 @@ class AlienInvasion:
     def _check_play_button(self, mouse_pos):
         ''' Inicia um jogo quando o jogador clica em Play'''
         
-        button_cliked = self.play_button.rect.collidepoint(mouse_pos)
-        if button_cliked and not self.game_active:
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
             # Redefine as estatísticas do jogo
             self.settings.initialize_dynamic_settings()
             self.stats.reset_stats()
+            self.sb.prep_score()
+            self.sb.prep_level()
             self.game_active =  True
             
             # Oculta o cursor do mouse
@@ -176,10 +176,6 @@ class AlienInvasion:
         ''' Atualiza a posição dos projéteis e descarta os projéteis antigos'''
         # Atualiza a posição dos projéteis
         self.bullets.update()
-         
-        # Verifica se algum projétil atingiu um alienígena 
-        # Se sim, descarta o projétil e o alienígena
-        colisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
         
         if not self.aliens:
             # Destrói os projéteis existentes e cria uma frota nova
@@ -196,12 +192,23 @@ class AlienInvasion:
     def _check_bullet_alien_colisions(self):
         ''' Responde à colisões alienígenas '''
         # Remove todos os projéteis e os alienígenas que tem colidido
-        colisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        
+        if collisions:
+            for aliens in collisions.values():
+                self.stats.score += self.settings.alien_points * len(aliens)
+            self.sb.prep_score()
+            self.sb.check_high_score()
         
         if not self.aliens:
             # Destrói os projéteis existentes e cria uma frota nova
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
+            
+            # Aumenta o nível
+            self.stats.level += 1
+            self.sb.prep_level()
             
         if not self.aliens:
             # Destrói os projéteis existentes e cria uma frota
