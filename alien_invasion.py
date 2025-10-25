@@ -92,6 +92,8 @@ class AlienInvasion:
             
             # Oculta o cursor do mouse
             pygame.mouse.set_visible(False)
+            self.sb.prep_level()
+            self.sb.prep_ships()
             
         # Descarta quaisquer projéteis e alienígenas restantes
         self.bullets.empty()
@@ -270,6 +272,7 @@ class AlienInvasion:
             
             # Decrementa ships_left
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
                     
             # Descarta quaisquer projéteis e alienígenas restantes
             self.bullets.empty()
