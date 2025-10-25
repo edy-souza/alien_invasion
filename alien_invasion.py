@@ -4,6 +4,7 @@ import pygame
 
 from settings import Settings
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from button import Button
 from ship import Ship
 from bullet import Bullet
@@ -34,9 +35,10 @@ class AlienInvasion:
         
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption('Alien Invasion')
-        
+              
         # Cria uma instância para armazenar estatísticas do jogo
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
         
         self.ship = Ship(self)
         
@@ -140,6 +142,9 @@ class AlienInvasion:
             
         self.ship.blitme()
         self.aliens.draw(self.screen)
+        
+        # Desenha as informações da pontuação
+        self.sb.show_score()
         
         # Desenha o botão Play se o jogo estiver inativo
         if not self.game_active:
